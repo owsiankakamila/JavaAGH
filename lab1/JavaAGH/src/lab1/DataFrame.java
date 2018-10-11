@@ -64,13 +64,37 @@ public class DataFrame {
 
 
 
-    DataFrame get(String [] cols, boolean copy){
+    DataFrame get(String [] columns, boolean copy){
+        Columns toConstructor [] = new Columns[columns.length];
+        int i=0,j=0;
+        int index;
+        for(String name : columns){
+            for (Column col : cols) { //stupid loop really
+                if (col.name == name){
+                    index =j;
+                }
+                j++;
+            }
+
+
+
+            if (copy){
+                try{
+
+                    Column c=(Column)(cols.get(index)).clone();
+                    toConstructor[i] = c;
+                }catch(CloneNotSupportedException c){}
+            }
+
+            else {
+                toConstructor[i] = cols.get(index);
+            }
+
+            i++;
+        }
         //find columns
-        // if copy
-        // sklonuj
-        // return klona
-        // else
-        // normalnie return
+
+        return DataFrame(toConstructor);
 
     }
 

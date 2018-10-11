@@ -2,7 +2,7 @@ package lab1;
 
 import java.util.ArrayList;
 
-public class Column {
+public class Column implements Cloneable {
     String name;
     String type;
     int size;
@@ -34,4 +34,9 @@ public class Column {
     Object returnElement(int index){
         return elements.get(index-1);
     }
+
+    public Object clone()throws CloneNotSupportedException{
+        return super.clone();
+    }
+
 }
