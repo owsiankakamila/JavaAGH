@@ -1,0 +1,335 @@
+package pkg1;
+
+import java.util.ArrayList;
+
+public class Column implements Cloneable {
+    String name;
+    String type;
+    int size;
+    ArrayList<Object> elements = new ArrayList<Object>();
+    //albo object
+
+    Column(){
+        System.out.println("no column like this");
+    }
+
+    Column (String itsName, String itsType){
+        name= itsName;
+        type= itsType;
+        size=0;
+        /*try {
+            Class T   = Class.forName(itsType);
+        } catch (ClassNotFoundException e) {
+        }*/
+
+        //nazwa typu jako typ kolumny
+    }
+
+
+    void addElement (Object obj){
+        elements.add(obj);
+        size++;
+    }
+
+    Object returnElement(int index){
+    	//if Array elements contains COOValue
+    	//
+    	// if index not found it means it is hidden value
+    	
+        return elements.get(index-1);
+    }
+
+    public Object clone()throws CloneNotSupportedException{
+        return super.clone();
+    }
+
+}
+
+
+
+package pkg1;
+
+import java.util.ArrayList;
+
+public class DataFrame {
+
+    String names[];
+    String types[];
+
+    ArrayList<Column> cols = new ArrayList<Column>();
+    int howManyCols;
+    int howManyRows;
+
+
+    // CONSTRUCTOR
+    DataFrame(String namesArray[], String typesArray[]) {
+        names = namesArray;
+        types = typesArray;
+
+        howManyCols = namesArray.length;
+        howManyRows = 0;
+
+        for (int i = 0; i < howManyCols; i++) {
+            cols.add(new Column(namesArray[i], typesArray[i]));
+        }
+    }
+
+    DataFrame(Column columns []){
+        howManyCols = columns.length;
+        howManyRows = columns[0].size;
+
+        String helpNames[]= new String[howManyCols];
+        String helpTypes[]= new String[howManyCols];
+
+        int i=0;
+        for (Column column : columns) {
+
+            if(column.size!=howManyRows){
+                //throw ColumnsAreNotEqual
+                System.out.println("columns are not equal");
+            }
+            cols.add(column); //reference??
+            helpNames[i]= column.name;
+            helpTypes[i]= column.type;
+
+
+        }
+
+        names= helpNames;
+        types= helpTypes;
+
+    }
+
+    Column get(String colname) {
+        for (Column s : cols)
+            if (colname.equals(s.name)) {
+                return s;
+
+            }
+
+        //throw new Exception("no such column");
+        return new Column(); //handled by basic constructor
+    }
+
+
+
+    DataFrame get(String [] columns, boolean copy){
+        Column toConstructor [] = new Column[columns.length];
+        int i=0,j=0;
+        int index;
+        for(String name : columns){
+            for (Column col : cols) { //stupid loop really
+                if (col.name == name){
+                    index =j;
+                }
+                j++;
+            }
+            
+            //now i have nr of column i have to copy
+
+
+            if (copy){
+                try{
+
+                    Column c=(Column)(cols.get(index)).clone();
+                    toConstructor[i] = c;
+                }catch(CloneNotSupportedException c){}
+            }
+
+            else {
+                toConstructor[i] = cols.get(index);
+            }
+
+            i++;
+        }
+        //find columns
+
+        return DataFrame(toConstructor);
+
+    }
+
+    boolean addRow(Object objects []){
+        if (objects.length != howManyCols){
+            return false;
+        }
+
+        for (Column col : cols) {
+            for (Object obj : objects) {
+
+                col.addElement(obj);
+            }
+        }
+
+        howManyRows++;
+        return true;
+
+
+    }
+
+    int size(){
+        return howManyRows;
+    }
+
+    void copyRowToNew(DataFrame df, int row){
+        Object[] objectsOfSelected = new Object[howManyCols];
+        int x=0;
+
+        for (Column column: cols){
+            objectsOfSelected[x]=column.returnElement(row);
+
+        }
+
+        //handle with if and throw
+        df.addRow(objectsOfSelected);
+    }
+
+
+    DataFrame iloc(int from, int to) {
+        // if i > howMany Rows
+        // throw exception
+
+        DataFrame df = new DataFrame(names, types);
+        for (int i=from; i<=to; i++){
+            copyRowToNew(df, i);
+        }
+
+        return df;
+
+    }
+
+
+
+    DataFrame iloc(int i) {
+        // if i > howMany Rows
+        // throw exception
+
+        DataFrame df = new DataFrame(names, types);
+        copyRowToNew(df, i);
+
+        return df;
+
+
+        // ###### MAKE BASIC DF #############
+
+        /*String[] namesOfSelected = new String[howManyCols];
+        String[] typesOfSelected = new String[howManyCols];
+        int x=0;
+        for (Column column: cols){
+            namesOfSelected[x]=column.name;
+            typesOfSelected[x]=column.type;
+        }*/
+    }
+
+
+
+
+
+}
+
+
+
+
+/*    ArrayList<String> names = new ArrayList<String>();
+for (String s: namesArr)
+        {
+        names.add(s);
+        }*/
+
+
+
+
+
+package pkg1;
+
+public class COOValue {
+	int position;
+	Object object;
+	COOValue(int pos, Object obj){
+		position = pos;
+		object = obj;
+		
+	}
+
+}
+
+package pkg1;
+
+public class SparseColumn extends Column {
+	Object hidden;
+	
+	// a może wszystko na COOValue??
+	 SparseColumn (String itsName, String itsType, Object hide){
+	      super(itsName,itsType);
+	      hidden = hide;
+	      
+	    }
+	 
+	    Object returnElement(int index){
+	    	//if Array elements contains COOValue
+	    	//
+	    	// if index not found it means it is hidden value
+	    	
+	        for (COOValue coo: elements){
+	        	if (coo.position == index){
+	        		return coo;
+	        	}
+	        	
+	        }
+	        
+	        // not found = it is hidden value
+	        
+	        return hidden; // to dla copyRowToNew ALE CZY NIE BEDZIE PROBLEMU Z RZUTEM (upcasting)
+	        
+	    }
+
+}
+
+
+package pkg1;
+
+public class SparseDataFrame extends DataFrame {
+	
+	Object hidden;
+
+	public SparseDataFrame(String names [], String types [], Object hide){
+		super(names,types);
+		hidden = hide; //rzutowanie
+		
+	
+		
+		
+	}
+	
+	boolean addRow(Object objects []){
+        if (objects.length != howManyCols){
+            return false;
+        }
+		
+        int i=0;
+		
+	  for (Column col : cols) {
+          for (Object obj : objects) {
+        	  if(!obj.equals(hidden)){
+        		  col.addElement(new COOValue(i, obj));
+        	  }
+
+        	  i++;
+              
+          }
+      }
+
+      howManyRows++;
+      return true;
+	
+	}
+}
+
+
+//iloc prawdopodobnie zadziala zupelnie inaczzej -inaczej pamięią 
+//- return Elemnent mozna by poprawic
+
+
+
+
+
+
