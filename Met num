@@ -1,0 +1,84 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Oct 15 19:06:23 2018
+
+@author: student181
+"""
+
+#zad 1
+import math 
+
+k=1240*math.sqrt(7)
+m=4467
+l=2j
+d=k+m
+c=d+l
+
+#zad 2
+print ('%.3f'%d )
+print ('%.20f'%d )
+
+#zad 3
+r=17
+h=33
+pole = (math.pi *r*r)*h
+
+print(pole)
+
+#zad 5
+x1=3
+t=4
+r=5
+
+B=(pow(x1,t*r))*(x1+r)/(r*math.sin(2*x1)+3.3456)
+
+print(B)
+
+#zad 6.1
+import numpy as np
+
+a = math.sqrt(2)
+M = np.array([[a,1,-a],[0,1,1],[-a,a,1]])
+
+Minv = np.linalg.inv(M)
+Mt =  np.transpose(M)
+Mdet = np.linalg.det (M)
+
+print(M)
+print(Minv)
+print(Mt)
+print(Mdet)
+
+#zad 6.2
+# 1,1
+print(M[0,0])
+# 3,3
+print(M[2,2])
+# 3,2
+print(M[2,1])
+
+# wyciągnięcie trzeciej kolumny
+w1=M[:,2]
+# wyciągnięcie drugiego wiersza
+w2=M[1,:]
+
+
+#zad 7
+#wszystkie numeryczne pierwiastki wielomianu
+coeff = [1,-7,3,43,-28,-60]
+print(np.roots(coeff))
+#!!!!!!!!!!!sprawdz
+
+#zad 8
+np.arange(3,7,0.4)
+np.linspace(2.0, 3.0, num=5)
+#!!!! kom
+
+#zad 9 
+
+def funkcja(x):
+    return x**3-3*x
+
+import matplotlib.pyplot as plt
+
+
